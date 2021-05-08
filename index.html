@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>  
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>World Radio Chat</title>
+		<link rel="stylesheet" href="style.css">
+    </head>
+	<body>
+		<div id="root"></div>
+		<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+		<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+		<script>
+			const myURL = "192.168.1.6:8080"
+			const Endpoints = {
+				chat: myURL + "/chat",
+			}
+			window.user = {{.}}
+		</script>
+		<script src="script.js"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMUfM0uP0b6WmdKOjagLDyuEPJXCuqALo&callback=initMap&libraries=&v=weekly" async></script>
+	</body>
+</html>
