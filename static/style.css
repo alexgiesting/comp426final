@@ -6,12 +6,7 @@
 html {
 	min-height: 100%;
 	background: linear-gradient(120deg, gold, coral);
-	font: san-serif;
 	color: #402008D0;
-}
-
-div {
-	border: 1px solid #0001;
 }
 
 #root {
@@ -27,9 +22,11 @@ div {
 	height: 100%;
 	padding: 0.5rem;
 	background: #fffc;
+	border: 1px solid #0001;
 }
 .map-frame {
 	height: 100%;
+	border: 1px solid #0001;
 }
 .current-channel-label {
 	position: absolute; bottom: 0; right: 0;
@@ -37,12 +34,13 @@ div {
 }
 .current-channel-label-inner {
 	padding: 0.5rem;
+	border: 1px solid #0001;
 }
 .station-picker {
-	position: absolute; top: 50%; left: 50%; z-index: 2;
+	position: absolute; top: 15%; left: 25%; z-index: 2;
 	height: 70%; width: 50%;
-	margin: -25% -25%;
 	background: #ca8;
+	border: 1px solid #0001;
 }
 .station-picker-inner {
 	position: relative;
@@ -50,11 +48,14 @@ div {
 	padding: 0.5rem;
 	overflow-y: auto;
 	background: #fffc;
+	border: 1px solid #0001;
+	font-size: 1.15em;
 }
 .station-picker-close {
 	position: absolute; top: 0; right: 0;
 	height: 1em; width: 1em;
 	cursor: pointer; user-select: none;
+	font-size: 2em;
 }
 .station-picker-play {
 	display: inline-block;
@@ -66,11 +67,13 @@ div {
 	position: absolute; bottom: 0; left: 0; z-index: 1;
 	height: 40%; width: 50%;
 	background: #0002;
+	border: 1px solid #0001;
 }
 .chat-inner {
 	height: 100%;
 	padding: 0.5rem;
 	overflow: hidden;
+	border: 1px solid #0001;
 }
 .chat-inner > input {
 	width: 100%;
@@ -78,6 +81,10 @@ div {
 .chat-row {
 	display: flex;
 	justify-content: space-between;
+}
+.chat-user {
+	margin-right: 1ch;
+	font-weight: bold;
 }
 
 .user-overlay {
@@ -91,6 +98,6 @@ div {
 	padding: 1rem;
 	background: #fffc;
 }
-.user-inner > br {
-	margin-bottom: 0.25em;
+.user-inner > * {
+	margin: 0.25em;
 }

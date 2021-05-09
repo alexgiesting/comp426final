@@ -131,10 +131,10 @@ const StationPicker = ({setChannel}) => {
 	return e("div", {className: "station-picker", style: {display: query ? "" : "none"}},
 		e("div", {className: "station-picker-inner"},
 			query?.map(qChannel => e(StationOption, {qChannel, setChannel})),
-			e("div", {className: "station-picker-close", onClick: () => {
-				setQuery()
-			}}, "×"),
 		),
+		e("div", {className: "station-picker-close", onClick: () => {
+			setQuery()
+		}}, "×"),
 	)
 }
 const StationOption = ({qChannel, setChannel}) => {
