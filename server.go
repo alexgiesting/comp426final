@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	myURL  = "192.168.1.6:8080"
+	myURL  = "giesting-world-radio.herokuapp.com"
 	myPort = ":8080"
 )
 
