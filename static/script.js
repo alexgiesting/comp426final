@@ -53,7 +53,7 @@ const ChatOverlay = ({channel}) => {
 	setChats = setter
 	React.useEffect(() => {
 		relay?.close()
-		relay = new WebSocket(`wss://${Endpoints.chat}?id=${channel ? channel.stationuuid : 0}`)
+		relay = new WebSocket(`wss://${location.host}?id=${channel ? channel.stationuuid : 0}`)
 		relay.addEventListener("message", event => {
 			const newChat = JSON.parse(event.data)
 			setChats(chats => [newChat, ...chats])
