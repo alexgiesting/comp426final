@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	"fmt"
 	"hash/fnv"
@@ -84,6 +83,5 @@ func main() {
 		}
 		http.Error(writer, "no valid cookie", http.StatusBadRequest)
 	})
-	go http.ListenAndServe(os.Getenv("PORT"), nil)
-	bufio.NewScanner(os.Stdin).Scan()
+	http.ListenAndServe(os.Getenv("PORT"), nil)
 }
