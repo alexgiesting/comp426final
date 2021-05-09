@@ -79,6 +79,6 @@ func main() {
 		http.Error(writer, "no valid cookie", http.StatusBadRequest)
 	})*/
 	fmt.Println("about to listen on " + os.Getenv("PORT"))
-	http.ListenAndServe(os.Getenv("PORT"), nil)
+	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 	fmt.Println("and we crashed?")
 }
