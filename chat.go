@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"sync"
@@ -17,13 +16,15 @@ type Room map[*websocket.Conn]struct{}
 type ChatHandler struct {
 	rooms      map[string]Room
 	roomsMutex sync.RWMutex
+	cookies    map[string]string
 	logf       func(string, ...interface{})
 }
 
-func newChatHandler() *ChatHandler {
+func newChatHandler(cookies map[string]string) *ChatHandler {
 	return &ChatHandler{
-		rooms: map[string]Room{},
-		logf:  log.Printf,
+		rooms:   map[string]Room{},
+		cookies: cookies,
+		logf:    func(f string, v ...interface{}) {}, //log.Printf,
 	}
 }
 
@@ -32,6 +33,14 @@ func (handler *ChatHandler) ServeHTTP(writer http.ResponseWriter, request *http.
 	if id == "" {
 		http.Error(writer, "no 'id' specified", http.StatusBadRequest)
 		return
+	}
+
+	user := "\"(anon)\""
+	for _, c := range request.Cookies() {
+		if c.Name == "verification" && handler.cookies[c.Value] != "" {
+			user = handler.cookies[c.Value]
+			break
+		}
 	}
 
 	connection, err := websocket.Accept(writer, request, &websocket.AcceptOptions{})
@@ -58,7 +67,7 @@ func (handler *ChatHandler) ServeHTTP(writer http.ResponseWriter, request *http.
 		handler.roomsMutex.RLock()
 		t := time.Now()
 		for recipient := range room {
-			recipient.Write(context.TODO(), websocket.MessageText, []byte(fmt.Sprintf(`{"user":"","message":%v,"datetime":"%v","id":%v}`, string(message), t.Format("2006-01-02 15:04:05.0000"), rand.Int())))
+			recipient.Write(context.TODO(), websocket.MessageText, []byte(fmt.Sprintf(`{"user":%v,"message":%v,"datetime":"%v","id":%v}`, user, string(message), t.Format("2006-01-02 15:04:05.0000"), rand.Int())))
 		}
 		handler.roomsMutex.RUnlock()
 	}

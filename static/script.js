@@ -53,8 +53,10 @@ const ChatOverlay = ({channel}) => {
 	setChats = setter
 	React.useEffect(() => {
 		relay?.close()
-		relay = new WebSocket(`wss://${location.host}/chat?id=${channel ? channel.stationuuid : 0}`)
+		const protocol = "ws" + location.protocol.substr(4)
+		relay = new WebSocket(`${protocol}//${location.host}/chat?id=${channel ? channel.stationuuid : 0}`)
 		relay.addEventListener("message", event => {
+			console.log(event.data)
 			const newChat = JSON.parse(event.data)
 			setChats(chats => [newChat, ...chats])
 		})
@@ -67,16 +69,13 @@ const ChatOverlay = ({channel}) => {
 			e("input", {onKeyDown: (e) => {
 				if (e.key == "Enter") {
 					e.preventDefault()
-					relay?.send(JSON.stringify({
-						user: window.user || "(anon)",
-						m: e.target.value,
-					}))
+					relay?.send(JSON.stringify(e.target.value))
 					e.target.value = ""
 				}
 			}}),
 			chats.map(chat => e("div", {key: chat.id, className: "chat-row"},
-				e("span", {className: "chat-user"}, chat.message.user),
-				e("span", {className: "chat-message"}, chat.message.m),
+				e("span", {className: "chat-user"}, chat.user),
+				e("span", {className: "chat-message"}, chat.message),
 				//e("span", {className: "chat-datetime"}, chat.datetime),
 			)),
 		),
@@ -84,35 +83,41 @@ const ChatOverlay = ({channel}) => {
 }
 
 let username, password
+const invalid = {}
 const UserOverlay = ({}) => {
+	const [user, setUser] = v()
+	React.useEffect(async () => {
+		const name = await fetch("/user")
+		setUser(name.ok ? await name.json() : invalid)
+	})
 	return e("div", {className: "user-overlay"},
-		window.user ? e("div", {className: "user-inner"}, window.user) :
+		user && (user != invalid ? e("div", {className: "user-inner name"}, user) :
 		e("div", {className: "user-inner"},
 			e("input", {placeholder: "username", onChange: (e) => {
-				username = e.target.value
+				username = JSON.stringify(e.target.value)
 			}}),
-			e("br", {}),
 			e("input", {placeholder: "password", onKeyDown: (e) => {
 				password = e.target.value
 			}}),
-			e("br", {}),
-			e("button", {onClick: () => {
-				if (!username || username.length == 0 || !password) {
-					return
-				}
-				const anchor = document.createElement('a')
-				anchor.href = `/register?name=${username}&password=${password}`
-				anchor.click()
-			}}, "Register"),
-			e("button", {onClick: () => {
-				if (!username || username.length == 0 || !password) {
-					return
-				}
-				const anchor = document.createElement('a')
-				anchor.href = `/login?name=${username}&password=${password}`
-				anchor.click()
-			}}, "Login"),
-		),
+			e("div", {},
+				e("button", {onClick: () => {
+					if (!username || username.length == 0 || !password) {
+						return
+					}
+					const anchor = document.createElement('a')
+					anchor.href = `/register?name=${username}&password=${password}`
+					anchor.click()
+				}}, "Register"),
+				e("button", {onClick: () => {
+					if (!username || username.length == 0 || !password) {
+						return
+					}
+					const anchor = document.createElement('a')
+					anchor.href = `/login?name=${username}&password=${password}`
+					anchor.click()
+				}}, "Login"),
+			),
+		)),
 	)
 }
 

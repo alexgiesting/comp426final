@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"hash/fnv"
-	"html/template"
+	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -19,10 +19,6 @@ func hash(s string) uint32 {
 }
 
 func main() {
-	fileServer := http.FileServer(http.Dir("static/"))
-	http.Handle("/", http.StripPrefix("/", fileServer))
-	http.Handle("/chat", newChatHandler())
-
 	db, _ := sql.Open("sqlite3", ":memory:")
 	db.Exec(`CREATE TABLE users (
 		name TEXT,
@@ -50,7 +46,7 @@ func main() {
 		http.SetCookie(writer, &http.Cookie{
 			Name: "verification", Value: fmt.Sprint(key),
 		})
-		http.Redirect(writer, request, "/user", http.StatusSeeOther)
+		http.Redirect(writer, request, "/", http.StatusSeeOther)
 	})
 	http.HandleFunc("/login", func(writer http.ResponseWriter, request *http.Request) {
 		q := request.URL.Query()
@@ -72,20 +68,25 @@ func main() {
 		http.SetCookie(writer, &http.Cookie{
 			Name: "verification", Value: key,
 		})
-		http.Redirect(writer, request, "/user", http.StatusSeeOther)
+		http.Redirect(writer, request, "/", http.StatusSeeOther)
 	})
-	page := template.Must(template.ParseFiles("static/index.html"))
 	http.HandleFunc("/user", func(writer http.ResponseWriter, request *http.Request) {
 		for _, c := range request.Cookies() {
 			if c.Name == "verification" && cookies[c.Value] != "" {
-				page.Execute(writer, struct {
-					AddScript bool
-					Script    string
-				}{true, "window.user = " + cookies[c.Value]})
+				writer.Write([]byte(cookies[c.Value]))
 				return
 			}
 		}
 		http.Error(writer, "no valid cookie", http.StatusBadRequest)
 	})
-	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+
+	fileServer := http.FileServer(http.Dir("static/"))
+	http.Handle("/", http.StripPrefix("/", fileServer))
+	http.Handle("/chat", newChatHandler(cookies))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Printf("listening on port %v", port)
+	http.ListenAndServe(":"+port, nil)
 }
