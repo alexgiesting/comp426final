@@ -1,24 +1,29 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"hash/fnv"
+	"html/template"
+	"math/rand"
 	"net/http"
 	"os"
-	//_ "github.com/mattn/go-sqlite3"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
-/*func hash(s string) uint32 {
+func hash(s string) uint32 {
 	h := fnv.New32a()
 	h.Write([]byte(s))
 	return h.Sum32()
-}*/
+}
 
 func main() {
 	fileServer := http.FileServer(http.Dir("static/"))
 	http.Handle("/", http.StripPrefix("/", fileServer))
 	http.Handle("/chat", newChatHandler())
 
-	/*db, _ := sql.Open("sqlite3", ":memory:")
+	db, _ := sql.Open("sqlite3", ":memory:")
 	db.Exec(`CREATE TABLE users (
 		name TEXT,
 		hash INTEGER
@@ -77,7 +82,7 @@ func main() {
 			}
 		}
 		http.Error(writer, "no valid cookie", http.StatusBadRequest)
-	})*/
+	})
 	fmt.Println("about to listen on " + os.Getenv("PORT"))
 	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 	fmt.Println("and we crashed?")
