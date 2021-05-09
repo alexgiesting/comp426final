@@ -1,11 +1,7 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"hash/fnv"
-	"html/template"
-	"math/rand"
 	"net/http"
 	"os"
 
@@ -23,7 +19,7 @@ func main() {
 	http.Handle("/", http.StripPrefix("/", fileServer))
 	http.Handle("/chat", newChatHandler())
 
-	db, _ := sql.Open("sqlite3", ":memory:")
+	/*db, _ := sql.Open("sqlite3", ":memory:")
 	db.Exec(`CREATE TABLE users (
 		name TEXT,
 		hash INTEGER
@@ -82,6 +78,6 @@ func main() {
 			}
 		}
 		http.Error(writer, "no valid cookie", http.StatusBadRequest)
-	})
+	})*/
 	http.ListenAndServe(os.Getenv("PORT"), nil)
 }
