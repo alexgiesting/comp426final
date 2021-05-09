@@ -13,11 +13,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const (
-	myURL  = "giesting-world-radio.herokuapp.com"
-	myPort = ":8080"
-)
-
 func hash(s string) uint32 {
 	h := fnv.New32a()
 	h.Write([]byte(s))
@@ -89,6 +84,6 @@ func main() {
 		}
 		http.Error(writer, "no valid cookie", http.StatusBadRequest)
 	})
-	go http.ListenAndServe(myPort, nil)
+	go http.ListenAndServe(os.Getenv("PORT"), nil)
 	bufio.NewScanner(os.Stdin).Scan()
 }
