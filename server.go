@@ -74,14 +74,18 @@ func main() {
 		})
 		http.Redirect(writer, request, "/user", http.StatusSeeOther)
 	})
-	page := template.Must(template.ParseFiles("index.html"))
+	page := template.Must(template.ParseFiles("static/index.html"))
 	http.HandleFunc("/user", func(writer http.ResponseWriter, request *http.Request) {
 		for _, c := range request.Cookies() {
 			if c.Name == "verification" && cookies[c.Value] != "" {
-				page.Execute(writer, cookies[c.Value])
+				page.Execute(writer, struct {
+					AddScript bool
+					Script    string
+				}{true, "window.user = " + cookies[c.Value]})
+				return
 			}
 		}
 		http.Error(writer, "no valid cookie", http.StatusBadRequest)
 	})
-	http.ListenAndServe(os.Getenv("PORT"), nil)
+	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }

@@ -10,12 +10,7 @@
 		<div id="root"></div>
 		<script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
 		<script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
-		<script>
-			const myURL = "giesting-world-radio.herokuapp.com"
-			const Endpoints = {
-				chat: myURL + "/chat",
-			}
-		</script>
+		<!----{{if .AddScript}}><script>{{.Script}}</script><!{{end}}---->
 		<script src="script.js"></script>
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMUfM0uP0b6WmdKOjagLDyuEPJXCuqALo&callback=initMap&libraries=&v=weekly" async></script>
 	</body>

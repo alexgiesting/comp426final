@@ -1,4 +1,4 @@
-module example.com/module
+module github.com/alexgiesting/comp426final
 
 // +heroku goVersion go1.16
 go 1.16
