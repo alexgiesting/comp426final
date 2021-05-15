@@ -46,33 +46,34 @@ const App = ({}) => {
 	)
 }
 
-let relay
+let source
 let setChats
 const ChatOverlay = ({channel}) => {
 	const [chats, setter] = v([])
 	setChats = setter
 	React.useEffect(() => {
-		relay?.close()
-		const protocol = "ws" + location.protocol.substr(4)
-		relay = new WebSocket(`${protocol}//${location.host}/chat?id=${channel ? channel.stationuuid : 0}`)
-		relay.addEventListener("message", event => {
-			console.log(event.data)
+		setChats([])
+		source?.close()
+		source = new EventSource(`/chat?id=${channel ? channel.stationuuid : 0}`)
+		source.addEventListener("message", event => {
 			const newChat = JSON.parse(event.data)
 			setChats(chats => [newChat, ...chats])
 		})
-		/*return function cleanup() {
-			relay.close()
-		}*/
 	}, [channel])
 	return e("div", {className: "chat-overlay"},
 		e("div", {className: "chat-inner"},
 			e("input", {onKeyDown: (e) => {
 				if (e.key == "Enter") {
 					e.preventDefault()
-					relay?.send(JSON.stringify(e.target.value))
+					fetch(`/chat?id=${channel ? channel.stationuuid : 0}`, {
+						method: "POST",
+						headers: {"Content-Type": "text/plain"},
+						body: JSON.stringify(e.target.value),
+					})
 					e.target.value = ""
 				}
 			}}),
+			e("div", {}, e("em", {}, channel ? "chat with users listening to " + channel.name : "chat with other users")),
 			chats.map(chat => e("div", {key: chat.id, className: "chat-row"},
 				e("span", {className: "chat-user"}, chat.user),
 				e("span", {className: "chat-message"}, chat.message),
