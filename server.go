@@ -24,20 +24,19 @@ func main() {
 		name TEXT,
 		hash INTEGER
 	)`)
-	db.Exec(`CREATE TABLE favorites (
+	/*db.Exec(`CREATE TABLE favorites (
 		name    TEXT,
 		station INTEGER
-	)`)
+	)`)*/
 	cookies := map[string]string{}
 	http.HandleFunc("/register", func(writer http.ResponseWriter, request *http.Request) {
 		q := request.URL.Query()
 		name := q.Get("name")
 		password := q.Get("password")
 		row := db.QueryRow("SELECT name FROM users WHERE name=?", name)
-		var x string
-		err := row.Scan(&x)
-		if err == nil {
-			http.Error(writer, "username already exists", http.StatusBadRequest)
+		var dummy string
+		if row.Scan(&dummy) == nil {
+			http.Error(writer, "username already exists", http.StatusConflict)
 			return
 		}
 		db.Exec("INSERT INTO users VALUES (?,?)", name, hash(password))
@@ -46,21 +45,21 @@ func main() {
 		http.SetCookie(writer, &http.Cookie{
 			Name: "verification", Value: fmt.Sprint(key),
 		})
-		http.Redirect(writer, request, "/", http.StatusSeeOther)
+		writer.WriteHeader(http.StatusCreated)
 	})
 	http.HandleFunc("/login", func(writer http.ResponseWriter, request *http.Request) {
 		q := request.URL.Query()
 		name := q.Get("name")
 		password := q.Get("password")
 		row := db.QueryRow("SELECT hash FROM users WHERE name=?", name)
-		if row == nil {
-			http.Error(writer, "username doesn't exist", http.StatusBadRequest)
+		var hashed int
+		err := row.Scan(&hashed)
+		if err != nil {
+			http.Error(writer, "username doesn't exist", http.StatusNotFound)
 			return
 		}
-		var hashed int
-		row.Scan(&hashed)
 		if int(hash(password)) != hashed {
-			http.Error(writer, "invalid password", http.StatusBadRequest)
+			http.Error(writer, "invalid password", http.StatusForbidden)
 			return
 		}
 		key := fmt.Sprint(rand.Int())
@@ -68,7 +67,7 @@ func main() {
 		http.SetCookie(writer, &http.Cookie{
 			Name: "verification", Value: key,
 		})
-		http.Redirect(writer, request, "/", http.StatusSeeOther)
+		writer.WriteHeader(http.StatusAccepted)
 	})
 	http.HandleFunc("/user", func(writer http.ResponseWriter, request *http.Request) {
 		for _, c := range request.Cookies() {

@@ -94,16 +94,24 @@ html {
 	background: #68e;
 }
 .user-inner {
-	height: 100%;
 	padding: 1rem;
 	display: flex; flex-flow: column;
 	align-items: center;
 	justify-content: center;
 	background: #fffc;
 }
-.user-inner.name {
-	font-size: 1.5em;
-}
 .user-inner * {
 	margin: 0.25em;
+}
+.user-label {
+	margin: 0;
+	display: flex;
+}
+.user-name {
+	font-size: 1.5em;
+}
+.unavailable-username [name="username"],
+.invalid-username [name="username"],
+.invalid-password [name="password"] {
+	background: pink;
 }

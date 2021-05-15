@@ -86,36 +86,60 @@ const ChatOverlay = ({channel}) => {
 let username, password
 const invalid = {}
 const UserOverlay = ({}) => {
+	const [state, setState] = v("")
 	const [user, setUser] = v()
-	React.useEffect(async () => {
+	const updateUser = async () => {
+		if (!document.cookie.includes("verification")) {
+			setUser(invalid)
+			return
+		}
+		setState("")
 		const name = await fetch("/user")
 		setUser(name.ok ? await name.json() : invalid)
-	})
+	}
+	React.useEffect(updateUser, [])
 	return e("div", {className: "user-overlay"},
-		user && (user != invalid ? e("div", {className: "user-inner name"}, user) :
+		user && (user != invalid ?
 		e("div", {className: "user-inner"},
-			e("input", {placeholder: "username", onChange: (e) => {
+			e("div", {className: "user-label"},
+				e("span", {className: "user-name"}, user),
+				e("button", {onClick: () => {
+					setUser(invalid)
+					document.cookie=`verification=;expires=${new Date(Date.now()).toUTCString()}`
+				}}, "Logout"),
+			),
+		) :
+		e("div", {className: "user-inner " + state},
+			e("input", {name: "username", placeholder: "username", onChange: (e) => {
 				username = JSON.stringify(e.target.value)
 			}}),
-			e("input", {placeholder: "password", onKeyDown: (e) => {
+			e("input", {name: "password", placeholder: "password", onKeyDown: (e) => {
 				password = e.target.value
 			}}),
 			e("div", {},
-				e("button", {onClick: () => {
+				e("button", {onClick: async () => {
 					if (!username || username.length == 0 || !password) {
 						return
 					}
-					const anchor = document.createElement('a')
-					anchor.href = `/register?name=${username}&password=${password}`
-					anchor.click()
+					const response = await fetch(`/register?name=${username}&password=${password}`)
+					if (response.status == 201) {
+						updateUser()
+					} else if (response.status == 409) {
+						setState("unavailable-username")
+					}
 				}}, "Register"),
-				e("button", {onClick: () => {
+				e("button", {onClick: async () => {
 					if (!username || username.length == 0 || !password) {
 						return
 					}
-					const anchor = document.createElement('a')
-					anchor.href = `/login?name=${username}&password=${password}`
-					anchor.click()
+					const response = await fetch(`/login?name=${username}&password=${password}`)
+					if (response.status == 202) {
+						updateUser()
+					} else if (response.status == 404) {
+						setState("invalid-username")
+					} else if (response.status == 403) {
+						setState("invalid-password")
+					}
 				}}, "Login"),
 			),
 		)),
