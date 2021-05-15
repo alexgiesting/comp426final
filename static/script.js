@@ -146,12 +146,13 @@ const UserOverlay = ({}) => {
 	)
 }
 
+const regionNames = new Intl.DisplayNames(undefined, {type: 'region'})
 const MainPanel = ({channel, setChannel}) => {
 	return e("div", {className: "main-panel"},
 		e("div", {id: "map", className: "map-frame"}),
 		e(StationPicker, {setChannel}),
 		e("div", {className: "current-channel-label"},
-			e("div", {className: "current-channel-label-inner"}, channel ? channel.name : "[nothing playing]"),
+			e("div", {className: "current-channel-label-inner"}, channel ? `${regionNames.of(channel.countrycode)}: ${channel.name}` : "[nothing playing]"),
 		),
 	)
 }
